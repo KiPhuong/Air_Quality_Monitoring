@@ -20,7 +20,7 @@ header
     line-height: 1;
     font-style: normal;
     font-weight: 700;
-    color: white;
+    color: #a21d33;
     margin-top: 24px;
 }
 
@@ -30,7 +30,6 @@ header
     vertical-align: middle;
     width: 40px;
     height: 40px;
-    background-color: white;
     border-radius: 50%;
 }
 a
