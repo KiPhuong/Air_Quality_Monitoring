@@ -34,18 +34,18 @@ let arrayCount = 0;
 //-----
 // It listens to HTTP get request.  
 // Here it listens to the root i.e '/' 
-const publicPath = 'E:/Code/NhungNhung';
+const publicPath = 'C:/Users/tmei/NT131_G7/NT131-Group7_Web_Final';
 //const publicPath = '/var/www/html/nt131';
 app.use(express.static(publicPath))
 app.get('/', (req, res) => {
     //const indexPath = '/var/www/html/nt131/index.html';
-    const indexPath = 'E:/Code/NhungNhung/index.html';
+    const indexPath = 'C:/Users/tmei/NT131_G7/NT131-Group7_Web_Final/index.html';
     res.sendFile(indexPath);
 });
 //
 //--DB
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = "mongodb+srv://hoang15:admin123@nt131-db.1yrghx6.mongodb.net/?retryWrites=true&w=majority&appName=NT131-DB";
+const uri = "mongodb+srv://tmai:DoAnNhung@#1905@cluster0.vov8v1u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -61,14 +61,14 @@ async function run() {
     await client.connect();
     
     // Create 'users' collection and insert a sample user (optional)
-    const db = client.db("NT131-DB");
+    const db = client.db("NT131");
     //const usersCollection = db.collection("users");
     
     // Create index on username to ensure it's unique
     //await usersCollection.createIndex({ username: 1 }, { unique: true });
     
     // Sample user (for testing purpose)
-    //await usersCollection.insertOne({ username: "user1", password: "password1" });
+    //await usersCollection.insertOne({ username: "user1", password: "nupacachi" });
     
     //console.log("Created 'users' collection and inserted a sample user.");
 
@@ -87,7 +87,7 @@ async function run() {
 async function checkLogin(username, password) {
   try {
     //await client.connect();
-    const db = client.db("NT131-DB");
+    const db = client.db("NT131");
     const usersCollection = db.collection("users");
     
     const user = await usersCollection.findOne({ username: username, password: password });
@@ -108,7 +108,7 @@ run().catch(console.dir);
 
 // Example usage of checkLogin function
 /*
-checkLogin("user1", "password1").then((isValid) => {
+checkLogin("user1", "nupacachi").then((isValid) => {
   if (isValid) {
     console.log("User authenticated successfully.");
   } else {
@@ -138,7 +138,7 @@ app.post('/api/login', async (req, res) => {
 
   try {
     await client.connect();
-    const db = client.db("NT131-DB");
+    const db = client.db("NT131");
     const usersCollection = db.collection("users");
     
     const user = await usersCollection.findOne({ username: username, password: password });
