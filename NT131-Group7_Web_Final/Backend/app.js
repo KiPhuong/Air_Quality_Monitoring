@@ -12,24 +12,24 @@ const path = require('path');
 var temp_global = 0;
 var humi_global = 0;
 var CO_global = 0;
-//var dust_global = 0;
+var dust_global = 0;
 //-----
 var init_flag = 0;
 var temp_max = temp_min = -100;
 var humi_max = humi_min = -100;
 var CO_max = CO_min = -100;
-//var dust_max = dust_min = -100;
+var dust_max = dust_min = -100;
 
 var temp_js = {"max": temp_max, "min": temp_min, "date_max":"", "date_min":""} ;
 var humi_js = {"max": humi_max, "min": humi_min,"date_max": "", "date_min":""};
 var CO_js = {"max": CO_max, "min": CO_min,"date_max":"","date_min":""};
-//var dust_js = {"max": dust_max, "min": dust_min, "date_max":"", "date_min":""};
+var dust_js = {"max": dust_max, "min": dust_min, "date_max":"", "date_min":""};
 // ---- record
 const MAX_RECORDS = 10;
 let temperatureRecords = [];
 let humiRecords = [];
 let CoRecords = [];
-//let dustRecords = [];
+let dustRecords = [];
 let arrayCount = 0;
 //-----
 // It listens to HTTP get request.  
@@ -45,10 +45,7 @@ app.get('/', (req, res) => {
 //
 //--DB
 const { MongoClient, ServerApiVersion } = require('mongodb');
-
-//const uri = "mongodb+srv://tmai:DoAnNhung@#1905@cluster0.vov8v1u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const uri = "mongodb+srv://KP:DoAnNhung123@cluster0.vov8v1u.mongodb.net/NT131?retryWrites=true&w=majority"
-//const uri = "mongodb+srv://KP:DoAnNhung123@cluster0.vov8v1u.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://KP:DoAnNhung123@cluster0.vov8v1u.mongodb.net/NT131?retryWrites=true&w=majority";
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -65,14 +62,13 @@ async function run() {
     
     // Create 'users' collection and insert a sample user (optional)
     const db = client.db("NT131");
-    
     //const usersCollection = db.collection("users");
     
     // Create index on username to ensure it's unique
     //await usersCollection.createIndex({ username: 1 }, { unique: true });
     
     // Sample user (for testing purpose)
-    //await usersCollection.insertOne({ username: "user1", password: "nupacachi" });
+    //await usersCollection.insertOne({ username: "user1", password: "password1" });
     
     //console.log("Created 'users' collection and inserted a sample user.");
 
@@ -112,7 +108,7 @@ run().catch(console.dir);
 
 // Example usage of checkLogin function
 /*
-checkLogin("user1", "nupacachi").then((isValid) => {
+checkLogin("user1", "password1").then((isValid) => {
   if (isValid) {
     console.log("User authenticated successfully.");
   } else {
@@ -190,19 +186,19 @@ app.get('/api/data',isAuthenticated, (req, res) => {
         temp: temp_global,
         humi: humi_global,
         CO_ppm: CO_global,
-        //dust_ppm: dust_global
+        dust_ppm: dust_global
     };
    
     res.json(data);
 });
 app.post('/api/data', (req, res) => {
     // Lấy dữ liệu gửi lên từ yêu cầu POST
-    const {temp, humi,co} = req.body;
-    console.log(temp, humi, co);
+    const {temp, humi,co, dust} = req.body;
+    console.log(temp, humi, co, dust);
     temp_global = temp;
     humi_global = humi;
     CO_global = co;
-    //dust_global = dust;
+    dust_global = dust;
     var date = new Date();
     date = formatDate(date);
     if(init_flag === 0){
@@ -210,26 +206,26 @@ app.post('/api/data', (req, res) => {
         temp_max = temp_min = temp;
         humi_max = humi_min = humi;
         CO_max = CO_min = co;
-        //dust_max = dust_min = dust;
+        dust_max = dust_min = dust;
         temp_js = {"max": temp_max, "min": temp_min, "date_max": date,"date_min":date} ;
         humi_js = {"max": humi_max, "min": humi_min, "date_max": date,"date_min":date};
         CO_js = {"max": CO_max, "min": CO_min, "date_max": date, "date_min":date};
-        //dust_js = {"max": dust_max, "min": dust_min, "date_max": date,"date_min":date};
+        dust_js = {"max": dust_max, "min": dust_min, "date_max": date,"date_min":date};
     }
     else {
-        updateMinMax(temp, humi, co, date);
+        updateMinMax(temp, humi, co, dust, date);
     }
     var tmp_re = [date, temp];
     var hum_re = [date, humi];
     var co_re = [date, co];
-    //var dus_re = [date, dust]
-    addTemperatureRecord(tmp_re, hum_re, co_re);
+    var dus_re = [date, dust]
+    addTemperatureRecord(tmp_re, hum_re, co_re, dus_re);
     
     // Trả về dữ liệu nhận được dưới dạng JSON
     //res.json(receivedData);
     
     console.log(temperatureRecords);
-    res.send(`200 OK with ${temp}- ${humi} and ${co} at  ${date} `);
+    res.send(`200 OK with ${temp}- ${humi}-${co} and ${dust} at  ${date} `);
 });
 // -------- min max showing
 app.get('/api/maxmin',isAuthenticated, (req, res) => {
@@ -238,7 +234,7 @@ app.get('/api/maxmin',isAuthenticated, (req, res) => {
         temp: temp_js ,
         humi: humi_js,
         CO: CO_js,
-        //dust: dust_js 
+        dust: dust_js 
     }
     res.json(data);
 });
@@ -249,13 +245,13 @@ app.get('/api/record',isAuthenticated,(req, res) =>{
         temp: temperatureRecords,
         humi: humiRecords,
         CO: CoRecords,
-        //dust: dustRecords
+        dust: dustRecords
     }
     res.json(data);
 
 });
 //----
-function updateMinMax(val_temp, val_humi, val_co, date){
+function updateMinMax(val_temp, val_humi, val_co, val_dust, date){
     // min 
     if(val_temp < temp_min) {
         temp_min = val_temp;
@@ -272,12 +268,12 @@ function updateMinMax(val_temp, val_humi, val_co, date){
         humi_js["min"] = humi_min;
         humi_js["date_min"] = date;
     }
-    // if(val_dust < dust_min) {
-    //     dust_min = val_dust;
-    //     dust_js["min"] = dust_min;
-    //     dust_js["date_min"] = date;
+    if(val_dust < dust_min) {
+        dust_min = val_dust;
+        dust_js["min"] = dust_min;
+        dust_js["date_min"] = date;
         
-    // }
+    }
 
     //----- max update -----
     if(val_temp > temp_max) {
@@ -295,12 +291,12 @@ function updateMinMax(val_temp, val_humi, val_co, date){
         humi_js["max"] = humi_max;
         humi_js["date_max"] = date;
     }
-    // if(val_dust > dust_max) {
-    //     dust_max = val_dust;
-    //     dust_js["max"] = dust_max;
-    //     dust_js["date_max"] = date;
+    if(val_dust > dust_max) {
+        dust_max = val_dust;
+        dust_js["max"] = dust_max;
+        dust_js["date_max"] = date;
         
-    // }
+    }
 
     
 
@@ -328,23 +324,23 @@ function formatDate(date) {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 //-----
-async function addTemperatureRecord(temp, humi, co) {
+async function addTemperatureRecord(temp, humi, co, dust) {
   if (arrayCount === MAX_RECORDS) {
     temperatureRecords.shift(); // Xóa phần tử cũ nhất
     CoRecords.shift();
     humiRecords.shift();
-    //dustRecords.shift();
+    dustRecords.shift();
   } else {
     arrayCount++;
   }
   temperatureRecords.push(temp);
   humiRecords.push(humi);
   CoRecords.push(co);
-  //dustRecords.push(dust);
+  dustRecords.push(dust);
 
   try {
     await client.connect();
-    const db = client.db("NT131-DB");
+    const db = client.db("NT131");
     const dataCollection = db.collection("data");
 
     // Xóa các dữ liệu cũ
@@ -354,8 +350,8 @@ async function addTemperatureRecord(temp, humi, co) {
     const dataToInsert = [
       { type: 'temperature', records: temperatureRecords },
       { type: 'humidity', records: humiRecords },
-      { type: 'CO', records: CoRecords }
-      //{ type: 'dust', records: dustRecords }
+      { type: 'CO', records: CoRecords },
+      { type: 'dust', records: dustRecords }
     ];
 
     await dataCollection.insertMany(dataToInsert);
