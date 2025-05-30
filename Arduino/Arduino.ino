@@ -4,7 +4,7 @@
 #include <MQUnifiedsensor.h>
 
 #define DHTPIN 4
-#define DHTTYPE DHT22
+#define DHTTYPE DHT11
 
 #define Board ("Arduino UNO")
 #define Pin (A1)  //Analog input 1 of arduino
@@ -34,7 +34,7 @@ MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, Pin, Type);
 StaticJsonDocument<100> doc;
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("DHT22 test!"));
+  Serial.println(F("DHT11 test!"));
   mySerial.begin(9600);  // Khởi tạo cổng nối tiếp mềm với tốc độ baud là 9600
   dht.begin();
   MQ2.setRegressionMethod(1);  //_PPM =  a*ratio^b
